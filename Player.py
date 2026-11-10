@@ -1,10 +1,13 @@
 from CollideObjectBase import SphereCollideObject
-from panda3d.core import Loader, NodePath, Vec3
+from panda3d.core import Loader, NodePath, Vec3, CollisionHandlerEvent
 from direct.task.Task import TaskManager
 from typing import Callable
 from direct.task import Task
 from SpaceJamClasses import Missile
 from direct.gui.OnscreenImage import OnscreenImage, TransparencyAttrib
+from direct.interval.LerpInterval import LerpFunc
+from direct.particles.ParticleEffect import ParticleEffect
+import re
 
 class Spaceship(SphereCollideObject):
     def __init__(self, loader: Loader, taskMgr: TaskManager, accept: Callable[[str, Callable], None], modelPath:str, parentNode: NodePath, nodeName: str, texPath: str, posVec: Vec3, scalevec: float):
@@ -29,6 +32,16 @@ class Spaceship(SphereCollideObject):
         self.loader = loader
 
         self.taskMgr.add(self.CheckIntervals, 'checkMissiles', 34)
+
+        self.cntExplode = 0
+        self.explodeIntervals = {}
+
+        self.traverser = traverser
+
+        self.handler = CollisionHandlerEvent()
+        self.handler.addInPattern('into')
+        self.accept('into', self.HandleInto)
+        
         
     def Fire(self):
         if self.missileBay:
@@ -47,6 +60,7 @@ class Spaceship(SphereCollideObject):
             # "fluid = 1" makes collision be checked between the last interval and this interval to make sure there's nothing in-betwwn both checks that wasn't hit.
             Missile.Intervals[tag] = currentMissile.modelNode.posInterval(2.0, travVec, startPos = posVec, fluid = 1)
             Missile.Intervals[tag].start()
+            self.traverser.addCollider(currentMissile.collisionNode, self.handler)
         else:
             # If we aren't reloading, we want to start reloading.
             if not self.taskMgr.hasTaskNamed('reload'):
@@ -54,6 +68,31 @@ class Spaceship(SphereCollideObject):
                 # Call the reload method on no delay.
                 self.taskMgr.doMethodLater(0, self.Reload, 'reload')
                 return Task.cont
+
+    def HandleInto(self, entry):
+        fromNode = entry.getFromNodePath().getName()
+        print("fromNode: " + fromNode)
+        intoNode = entry.getIntoNodePath().getName()
+        print("intoNode: " + intoNode)
+        intoPosition = Vec3(entry.getSurfacePoint(self.render))
+        tempVar = fromNode.split('_')
+        print("tempVar: " + str(tempVar))
+        shooter = tempVar[0]
+        print("shooter: " + str(shooter))
+        tempVar = intoNode.split('_')
+        print("tempVar1: " + str(tempVar))
+        tempVar = intoNode.split('_')
+        print("tempVar2: " + str(tempVar))
+        victim = tempVar[0]
+        print("victim: " + str(victim))
+        pattern = r'[0-9]'
+        strippedString = re.sub(pattern, '', victim)
+        if (strippedString == "Drone" or strippedString == "Planet" or strippedString == "Space Station"):
+            print(victim, 'hit at,', intoPosition)
+            self.DestroyObject(victim, intoPosition)
+
+        print(shooter + ' is DONE.')
+        Missile.Intervals[shooter].finish()
     
     def Reload(self, task):
         if task.time > self.reloadTime:
