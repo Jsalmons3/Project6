@@ -93,6 +93,34 @@ class Spaceship(SphereCollideObject):
 
         print(shooter + ' is DONE.')
         Missile.Intervals[shooter].finish()
+
+    def DestroyObject(self, hitID, hitPosition):
+        nodeID = self.render.find(hitID)
+        nodeID.detachNode()
+
+        self.explodeNode.setPos(hitPosition)
+        self.Explode()
+
+    def Explode(self):
+        self.cntExplode += 1
+        tag = 'particles-' + str(self.cntExplode)
+
+        self.explodeIntervals[tag] = LerpFunc(self.ExplodeLight, duration = 4.0)
+        self.explodeIntervals[tag].start()
+
+    def ExplodeLight(self, t):
+        if t == 1.0 and self.explodeEffect:
+            self.explodeEffect.disable()
+
+        elif t == 0:
+            self.explodeEffect.start(self.explodeNode)
+
+    def SetParticles(self):
+        base.enableParticles()
+        self.explodeEffect = ParticleEffect()
+        self.explodeEffect.loadConfig("./Assets/ParticlesEffects/Explosions/basic_xpld_efx.ptf")
+        self.explodeEffect.setScale(20)
+        self.explodeNode = self.render.attachNewNode('ExplosionEffects')
     
     def Reload(self, task):
         if task.time > self.reloadTime:
