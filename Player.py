@@ -10,7 +10,7 @@ from direct.particles.ParticleEffect import ParticleEffect
 import re
 
 class Spaceship(SphereCollideObject):
-    def __init__(self, loader: Loader, taskMgr: TaskManager, accept: Callable[[str, Callable], None], modelPath:str, parentNode: NodePath, nodeName: str, texPath: str, posVec: Vec3, scalevec: float):
+    def __init__(self, loader: Loader, taskMgr: TaskManager, accept: Callable[[str, Callable], None], traverser, modelPath:str, parentNode: NodePath, nodeName: str, texPath: str, posVec: Vec3, scalevec: float):
         super().__init__(loader, modelPath, parentNode, nodeName, Vec3(0, 0, 0), 1)
         self.taskMgr = taskMgr
         self.accept = accept
@@ -23,6 +23,7 @@ class Spaceship(SphereCollideObject):
         self.taskManager = taskMgr
         self.accept = accept
         self.render = parentNode
+        self.SetParticles()
         self.SetKeyBindings()
         self.EnableHUD()
 
@@ -118,7 +119,7 @@ class Spaceship(SphereCollideObject):
     def SetParticles(self):
         base.enableParticles()
         self.explodeEffect = ParticleEffect()
-        self.explodeEffect.loadConfig("./Assets/ParticlesEffects/Explosions/basic_xpld_efx.ptf")
+        self.explodeEffect.loadConfig("./Assets/Part-Efx/basic_xpld_efx.ptf")
         self.explodeEffect.setScale(20)
         self.explodeNode = self.render.attachNewNode('ExplosionEffects')
     

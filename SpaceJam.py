@@ -18,10 +18,9 @@ class MyApp(ShowBase):
         self.Planet5 = spaceJamClasses.Planet(self.loader, "./Assets/Planets/protoPlanet.x", self.render, "Planet5", "./Assets/Planets/Eris.jpg", (3400, -1000, -2000), 100)
         self.Planet6 = spaceJamClasses.Planet(self.loader, "./Assets/Planets/protoPlanet.x", self.render, "Planet6", "./Assets/Planets/Jupiter.jpg", (4500, 5000, 67), 500)
         self.Spacestation = spaceJamClasses.SpaceStation(self.loader, "./Assets/Space Station/SpaceStation1B/spaceStation.x", self.render, "Space Station", "./Assets/Space Station/SpaceStation1B/SpaceStation1_Dif2.png", (6000, 1000, 67), 200)
-        self.Ship = Spaceship(self.loader, self.taskMgr, self.accept, "./Assets/Spaceships/Dumbledore/Dumbledore.x", self.render, "Ship", "./Assets/Spaceships/Dumbledore/spacejet_C.png", Vec3(0, 0, 100), 50)
-
         self.cTrav = CollisionTraverser()
-        self.cTrav.traverse(self.render)
+        self.Ship = Spaceship(self.loader, self.taskMgr, self.accept, self.cTrav, "./Assets/Spaceships/Dumbledore/Dumbledore.x", self.render, "Ship", "./Assets/Spaceships/Dumbledore/spacejet_C.png", Vec3(0, 0, 100), 50)
+
         self.pusher = CollisionHandlerPusher()
         self.pusher.addCollider(self.Ship.collisionNode, self.Ship.modelNode)
         self.cTrav.addCollider(self.Ship.collisionNode, self.pusher)
