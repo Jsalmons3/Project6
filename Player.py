@@ -5,7 +5,8 @@ from typing import Callable
 from direct.task import Task
 from SpaceJamClasses import Missile
 from direct.gui.OnscreenImage import OnscreenImage, TransparencyAttrib
-from direct.interval.LerpInterval import LerpFunc
+from direct.interval.LerpInterval import LerpFunc, LerpPosInterval,LerpHprInterval
+from direct.interval.IntervalGlobal import Sequence, Parallel, Func
 from direct.particles.ParticleEffect import ParticleEffect
 import re
 
@@ -42,6 +43,15 @@ class Spaceship(SphereCollideObject):
         self.handler = CollisionHandlerEvent()
         self.handler.addInPattern('into')
         self.accept('into', self.HandleInto)
+
+        self.normalSpeed = 5
+        self.boostSpeed = 10
+        self.boosting = False
+
+        self.backflipDistance = 500
+        self.backflipDuration = 1.0
+        self.backflipping = False
+        self.backflipInterval = None
         
         
     def Fire(self):
@@ -171,6 +181,9 @@ class Spaceship(SphereCollideObject):
         self.accept('e', self.RollRight, [1])
         self.accept('e-up', self.RollRight, [0])
         self.accept('f', self.Fire)
+        self.accept('b', self.Backflip)
+        self.accept('z', self.SpeedBoost, [1])
+        self.accept('z-up', self.SpeedBoost, [0])
         
     def LeftTurn(self, keyDown):
         if keyDown:
@@ -245,8 +258,51 @@ class Spaceship(SphereCollideObject):
             self.taskManager.remove('forward-thrust')
     
     def ApplyThrust(self, task):
-        rate = 5
+        if self.backflipping:
+            return Task.cont
+
+        if self.boosting:
+            rate = self.boostSpeed
+        else:
+            rate = self.normalSpeed
+
         trajectory = self.render.getRelativeVector(self.modelNode, Vec3.forward())
         trajectory.normalize()
+
         self.modelNode.setFluidPos(self.modelNode.getPos() + trajectory * rate)
+
         return Task.cont
+
+    def SpeedBoost(self, keyDown):
+        if keyDown:
+            self.boosting = True
+            print("Speed boost activated!")
+        else:
+            self.boosting = False
+            print("Speed boost deactivated.")
+
+    def Backflip(self):
+        if self.backflipping:
+            return
+
+        self.backflipping = True
+        print("Do a flip!")
+        startPos = self.modelNode.getPos()
+        startHpr = self.modelNode.getHpr()
+
+        backward = self.render.getRelativeVector(self.modelNode, -Vec3.forward())
+
+        backward.normalize()
+
+        endPos = startPos + (backward * self.backflipDistance)
+
+        endHpr = startHpr + Vec3(0, 360, 0)
+
+        self.backflipInterval = Sequence(Parallel(LerpPosInterval(self.modelNode, self.backflipDuration, endPos, startPos = startPos), LerpHprInterval(self.modelNode, self.backflipDuration, endHpr, startHpr = startHpr)), Func(self.FinishBackflip, startHpr))
+
+        self.backflipInterval.start()
+
+    def FinishBackflip(self, startHpr):
+        self.modelNode.setHpr(startHpr)
+        self.backflipping = False
+        print('Nailed it!')
