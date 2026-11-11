@@ -10,7 +10,7 @@ class MyApp(ShowBase):
         ShowBase.__init__(self)
 
     def SetupScene(self):
-        self.Universe = spaceJamClasses.Unvierse(self.loader, "./Assets/Universe/Universe/Universe.x", self.render, "Universe", "./Assets/Universe/Universe.jpg", (0, 0, 0), 15000)
+        self.Universe = spaceJamClasses.Universe(self.loader, "./Assets/Universe/Universe/Universe.x", self.render, "Universe", "./Assets/Universe/Universe.jpg", Vec3(0, 0, 0), 15000)
         self.Planet1 = spaceJamClasses.Planet(self.loader, "./Assets/Planets/protoPlanet.x", self.render, "Planet1", "./Assets/Planets/Mars.jpg", (-600, 5000, 67), 350)
         self.Planet2 = spaceJamClasses.Planet(self.loader, "./Assets/Planets/protoPlanet.x", self.render, "Planet2", "./Assets/Planets/Ceres.jpg", (-400, -200, -800), 400)
         self.Planet3 = spaceJamClasses.Planet(self.loader, "./Assets/Planets/protoPlanet.x", self.render, "Planet3", "./Assets/Planets/Haumea.jpg", (2500, -2500, 2500), 600)

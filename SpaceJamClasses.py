@@ -166,9 +166,10 @@ class Universe(InverseSphereCollideObject):
         super(Universe, self).__init__(loader, modelPath, parentNode, nodeName, Vec3(0, 0, 0), 0.9)
         self.modelNode.setPos(posVec)
         self.modelNode.setScale(scaleVec)
-        self.modelNode.setname(nodeName)
+        self.modelNode.setName(nodeName)
         tex = loader.loadTexture(texPath)
         self.modelNode.setTexture(tex, 1)
+        self.collisionNode.hide()
 
 class SpaceStation(CapsuleCollidableObject):
     def __init__(self, loader: Loader, modelPath: str, parentNode: NodePath, nodeName: str,texPath: str, posVec: Vec3, scaleVec: float):
@@ -178,7 +179,7 @@ class SpaceStation(CapsuleCollidableObject):
 
 class Planet(SphereCollideObject):
     def __init__(self, loader: Loader, modelPath: str, parentNode: NodePath, nodeName: str, texPath: str, posVec: Vec3, scaleVec: float):
-        super().__init__(loader, modelPath, parentNode, nodeName, Vec3(0, 0, 0), 1.1)
+        super().__init__(loader, modelPath, parentNode, nodeName, Vec3(0, 0, 0), 1.2)
         self.modelNode.setPos(posVec)
         self.modelNode.setScale(scaleVec)
         self.modelNode.setName(nodeName)
